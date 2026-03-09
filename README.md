@@ -1,1 +1,16 @@
-# AWESOME-game-jam
+# Name in progress..
+### Team Members
+- Khani Lyan
+- Alex Kurcan
+
+## Game Overview
+
+## Core mechanics
+
+# How to Run
+## Steps
+
+## Win & Lose Conditions
+### Win
+### Lose
+Contact: 
