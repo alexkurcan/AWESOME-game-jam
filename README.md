@@ -13,4 +13,5 @@
 ## Win & Lose Conditions
 ### Win
 ### Lose
-Contact: 
+Contact:
+Alex Kurcan: alxkurcan13@gmail.com
