@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Boohbah Beats</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>Boohbah Beats</h1>
+
+<div id="ui">
+  <div id="score">Score: 0</div>
+  <div id="combo">Combo: 0</div>
+</div>
+
+<div id="game">
+  <div class="lane" id="lane0"></div>
+  <div class="lane" id="lane1"></div>
+  <div class="lane" id="lane2"></div>
+  <div class="lane" id="lane3"></div>
+</div>
+
+<div id="hitline"></div>
+
+<div id="keys">
+  <span>A</span>
+  <span>S</span>
+  <span>D</span>
+  <span>F</span>
+</div>
+
+<button onclick="startGame()">Start</button>
+
+<script src="chart.js"></script>
+<script src="game.js"></script>
+
+</body>
+</html>
