@@ -1,40 +1,721 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Boohbah Beats</title>
-<link rel="stylesheet" href="style.css">
-</head>
+  <meta charset="UTF-8">
+  <title>Boohbah Beats</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+    canvas { display: block; }
 
+    #ui {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 18px 32px;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .ui-block { text-align: center; }
+    .ui-label {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: #555;
+      text-transform: uppercase;
+    }
+    .ui-value {
+      font-size: 32px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #fff;
+      text-shadow: 0 0 20px currentColor;
+      transition: color 0.1s;
+    }
+    #combo-val { color: #00f5ff; text-shadow: 0 0 20px #00f5ff; }
+    #score-val { color: #ffe600; text-shadow: 0 0 20px #ffe600; }
+
+    #key-hints {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .key-box {
+      width: 54px; height: 54px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #555;
+      transition: all 0.08s;
+      background: rgba(0,0,0,0.6);
+    }
+    .key-box.active {
+      border-color: currentColor;
+      color: #fff;
+      box-shadow: 0 0 18px currentColor;
+      background: rgba(255,255,255,0.08);
+    }
+
+    #hit-feedback {
+      position: fixed;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 6px;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      gap: 16px;
+    }
+    #overlay h1 {
+      font-size: 56px;
+      letter-spacing: 8px;
+      color: #00f5ff;
+      text-shadow: 0 0 40px #00f5ff, 0 0 80px #00f5ff44;
+      text-transform: uppercase;
+      animation: pulse 2s infinite;
+    }
+    #overlay p {
+      color: #888;
+      font-size: 13px;
+      letter-spacing: 3px;
+    }
+    #start-btn {
+      margin-top: 24px;
+      padding: 16px 52px;
+      font-size: 18px;
+      font-family: inherit;
+      letter-spacing: 6px;
+      background: transparent;
+      border: 2px solid #00f5ff;
+      color: #00f5ff;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      box-shadow: 0 0 20px #00f5ff44;
+    }
+    #start-btn:hover {
+      background: #00f5ff22;
+      box-shadow: 0 0 40px #00f5ff88;
+      transform: scale(1.04);
+    }
+
+    #end-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      gap: 12px;
+    }
+    #end-overlay h2 { font-size: 40px; letter-spacing: 6px; color: #ffe600; text-shadow: 0 0 30px #ffe600; }
+    #final-score { font-size: 64px; color: #fff; text-shadow: 0 0 20px #fff; }
+    #final-combo { font-size: 22px; color: #00f5ff; letter-spacing: 4px; }
+    #grade { font-size: 80px; font-weight: 900; letter-spacing: 0; margin: 8px 0; }
+    #retry-btn {
+      margin-top: 20px;
+      padding: 14px 44px;
+      font-size: 16px;
+      font-family: inherit;
+      letter-spacing: 5px;
+      background: transparent;
+      border: 2px solid #ffe600;
+      color: #ffe600;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+    #retry-btn:hover { background: #ffe60022; box-shadow: 0 0 30px #ffe60088; }
+
+    @keyframes pulse {
+      0%, 100% { text-shadow: 0 0 40px #00f5ff, 0 0 80px #00f5ff44; }
+      50% { text-shadow: 0 0 60px #00f5ff, 0 0 120px #00f5ff88; }
+    }
+    @keyframes hitPop {
+      0% { transform: translateX(-50%) scale(0.7); opacity: 1; }
+      60% { transform: translateX(-50%) scale(1.15); opacity: 1; }
+      100% { transform: translateX(-50%) scale(1); opacity: 0; }
+    }
+  </style>
+</head>
 <body>
 
-<h1>Boohbah Beats</h1>
-
+<!-- HUD -->
 <div id="ui">
-  <div id="score">Score: 0</div>
-  <div id="combo">Combo: 0</div>
+  <div class="ui-block">
+    <div class="ui-label">Score</div>
+    <div class="ui-value" id="score-val">0</div>
+  </div>
+  <div class="ui-block">
+    <div class="ui-label">Combo</div>
+    <div class="ui-value" id="combo-val">0x</div>
+  </div>
 </div>
 
-<div id="game">
-  <div class="lane" id="lane0"></div>
-  <div class="lane" id="lane1"></div>
-  <div class="lane" id="lane2"></div>
-  <div class="lane" id="lane3"></div>
+<!-- Key indicators -->
+<div id="key-hints">
+  <div class="key-box" id="key0" style="color:#00f5ff">A</div>
+  <div class="key-box" id="key1" style="color:#ff00aa">S</div>
+  <div class="key-box" id="key2" style="color:#ffe600">D</div>
+  <div class="key-box" id="key3" style="color:#00ff88">F</div>
 </div>
 
-<div id="hitline"></div>
+<!-- Hit text -->
+<div id="hit-feedback"></div>
 
-<div id="keys">
-  <span>A</span>
-  <span>S</span>
-  <span>D</span>
-  <span>F</span>
+<!-- Start screen -->
+<div id="overlay">
+  <h1>Boohbah Beats</h1>
+  <p>press A · S · D · F to hit notes</p>
+  <button id="start-btn">Start Game</button>
 </div>
 
-<button onclick="startGame()">Start</button>
+<!-- End screen -->
+<div id="end-overlay">
+  <h2>Game Over</h2>
+  <div id="grade">?</div>
+  <div id="final-score">0</div>
+  <div id="final-combo">Max Combo: 0</div>
+  <button id="retry-btn">Play Again</button>
+</div>
 
-<script src="chart.js"></script>
-<script src="game.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
 
+// ─── CHART ────────────────────────────────────────────────
+const CHART = [
+  {time:1000,lane:0},{time:1500,lane:1},{time:2000,lane:2},{time:2500,lane:3},
+  {time:3000,lane:0},{time:3500,lane:1},{time:4000,lane:2},{time:4500,lane:3},
+  {time:5000,lane:0},{time:5200,lane:1},{time:5400,lane:2},{time:5600,lane:3},
+  {time:6000,lane:0},{time:6200,lane:2},
+  {time:6500,lane:1},{time:6700,lane:3},
+  {time:7000,lane:0},{time:7200,lane:1},{time:7400,lane:2},{time:7600,lane:3},
+  {time:8000,lane:2},{time:8200,lane:0},{time:8400,lane:3},{time:8600,lane:1},
+  {time:9000,lane:0},{time:9150,lane:1},{time:9300,lane:2},{time:9450,lane:3},
+  {time:10000,lane:1},{time:10500,lane:3},{time:11000,lane:0},{time:11500,lane:2},
+  {time:12000,lane:0},{time:12200,lane:2},{time:12400,lane:1},{time:12600,lane:3},
+];
+
+// ─── COLORS ───────────────────────────────────────────────
+const LANE_COLORS = [0x00f5ff, 0xff00aa, 0xffe600, 0x00ff88];
+const LANE_COLORS_HEX = ['#00f5ff', '#ff00aa', '#ffe600', '#00ff88'];
+const KEYS = ['a','s','d','f'];
+
+// ─── THREE.JS SETUP ───────────────────────────────────────
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x000008, 0.035);
+
+const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(0, 5.5, 11);
+camera.lookAt(0, 0, 0);
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ─── LIGHTING ─────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x111133, 2));
+
+const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+dirLight.position.set(0, 20, 10);
+dirLight.castShadow = true;
+scene.add(dirLight);
+
+// Colored point lights per lane
+const laneLights = LANE_COLORS.map((col, i) => {
+  const l = new THREE.PointLight(col, 0, 6);
+  l.position.set((i - 1.5) * 2, 1, 6);
+  scene.add(l);
+  return l;
+});
+
+// Back glow
+const backLight = new THREE.PointLight(0x3300ff, 3, 30);
+backLight.position.set(0, 8, -10);
+scene.add(backLight);
+
+// ─── TRACK ────────────────────────────────────────────────
+const LANE_X = [-3, -1, 1, 3];
+const NOTE_SPAWN_Z = -28;
+const HIT_Z = 7;
+const MISS_Z = 12;
+
+// Floor / track runway
+const floorGeo = new THREE.PlaneGeometry(10, 60);
+const floorMat = new THREE.MeshStandardMaterial({
+  color: 0x050510, roughness: 0.9, metalness: 0.1
+});
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.position.set(0, -0.5, -14);
+floor.receiveShadow = true;
+scene.add(floor);
+
+// Lane dividers
+for (let i = 0; i <= 4; i++) {
+  const x = -4 + i * 2;
+  const divGeo = new THREE.BoxGeometry(0.05, 0.02, 60);
+  const divMat = new THREE.MeshBasicMaterial({ color: 0x1a1a3a });
+  const div = new THREE.Mesh(divGeo, divMat);
+  div.position.set(x, -0.49, -14);
+  scene.add(div);
+}
+
+// Glowing hit line
+const hitLineGeo = new THREE.BoxGeometry(10, 0.08, 0.08);
+const hitLineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const hitLine = new THREE.Mesh(hitLineGeo, hitLineMat);
+hitLine.position.set(0, -0.44, HIT_Z - 0.5);
+scene.add(hitLine);
+
+// Hit line glow
+const hitGlowGeo = new THREE.BoxGeometry(10, 0.4, 0.4);
+const hitGlowMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.08 });
+const hitGlow = new THREE.Mesh(hitGlowGeo, hitGlowMat);
+hitGlow.position.copy(hitLine.position);
+scene.add(hitGlow);
+
+// Lane base pads (at hit line)
+const pads = [];
+LANE_X.forEach((x, i) => {
+  const padGeo = new THREE.BoxGeometry(1.8, 0.06, 1.0);
+  const padMat = new THREE.MeshStandardMaterial({
+    color: LANE_COLORS[i], transparent: true, opacity: 0.12,
+    roughness: 0.3, metalness: 0.7
+  });
+  const pad = new THREE.Mesh(padGeo, padMat);
+  pad.position.set(x, -0.47, HIT_Z - 0.5);
+  scene.add(pad);
+  pads.push({ mesh: pad, mat: padMat, flashTimer: 0 });
+});
+
+// Grid lines rushing toward camera (parallax)
+const gridLines = [];
+for (let z = 0; z > -50; z -= 4) {
+  const g = new THREE.BoxGeometry(10, 0.01, 0.04);
+  const m = new THREE.MeshBasicMaterial({ color: 0x0a0a2a });
+  const mesh = new THREE.Mesh(g, m);
+  mesh.position.set(0, -0.48, z);
+  scene.add(mesh);
+  gridLines.push(mesh);
+}
+
+// Starfield background
+const starGeo = new THREE.BufferGeometry();
+const starCount = 600;
+const starPos = new Float32Array(starCount * 3);
+for (let i = 0; i < starCount; i++) {
+  starPos[i*3]   = (Math.random() - 0.5) * 80;
+  starPos[i*3+1] = Math.random() * 30 + 2;
+  starPos[i*3+2] = Math.random() * -80;
+}
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.12, transparent: true, opacity: 0.6 });
+scene.add(new THREE.Points(starGeo, starMat));
+
+// ─── PARTICLES ────────────────────────────────────────────
+const particles = [];
+
+function spawnParticles(x, color) {
+  for (let i = 0; i < 14; i++) {
+    const geo = new THREE.SphereGeometry(0.07, 4, 4);
+    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, 0, HIT_Z - 0.5);
+    scene.add(mesh);
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.05 + Math.random() * 0.12;
+    particles.push({
+      mesh, mat,
+      vx: Math.cos(angle) * speed,
+      vy: 0.06 + Math.random() * 0.1,
+      vz: Math.sin(angle) * speed * 0.3,
+      life: 1.0
+    });
+  }
+}
+
+function updateParticles() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.life -= 0.035;
+    p.mesh.position.x += p.vx;
+    p.mesh.position.y += p.vy;
+    p.mesh.position.z += p.vz;
+    p.vy -= 0.004;
+    p.mat.opacity = p.life;
+    if (p.life <= 0) {
+      scene.remove(p.mesh);
+      particles.splice(i, 1);
+    }
+  }
+}
+
+// ─── NOTE RING EFFECT ─────────────────────────────────────
+const rings = [];
+
+function spawnRing(x, color) {
+  const geo = new THREE.RingGeometry(0.2, 0.5, 24);
+  const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, side: THREE.DoubleSide });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(x, 0, HIT_Z - 0.5);
+  mesh.rotation.x = -Math.PI / 2;
+  scene.add(mesh);
+  rings.push({ mesh, mat, scale: 1.0, life: 1.0 });
+}
+
+function updateRings() {
+  for (let i = rings.length - 1; i >= 0; i--) {
+    const r = rings[i];
+    r.life -= 0.06;
+    r.scale += 0.18;
+    r.mesh.scale.setScalar(r.scale);
+    r.mat.opacity = r.life * 0.8;
+    if (r.life <= 0) {
+      scene.remove(r.mesh);
+      rings.splice(i, 1);
+    }
+  }
+}
+
+// ─── AUDIO (Web Audio for tone feedback) ──────────────────
+let audioCtx = null;
+
+function initAudio() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playHitSound(laneIndex) {
+  if (!audioCtx) return;
+  const freqs = [523, 659, 784, 1047]; // C5 E5 G5 C6
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.frequency.value = freqs[laneIndex];
+  osc.type = 'sine';
+  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.18);
+}
+
+function playMissSound() {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.frequency.value = 120;
+  osc.type = 'sawtooth';
+  gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.2);
+}
+
+// ─── GAME STATE ───────────────────────────────────────────
+let score = 0;
+let combo = 0;
+let maxCombo = 0;
+let totalNotes = CHART.length;
+let hitCount = 0;
+let missCount = 0;
+let started = false;
+let ended = false;
+let startTime = null;
+let spawned = new Array(CHART.length).fill(false);
+let activeNotes = []; // {mesh, lane, spawnTime}
+const NOTE_SPEED = 0.18;
+const NOTE_TRAVEL = Math.abs(NOTE_SPAWN_Z - HIT_Z); // ~35 units
+const NOTE_TRAVEL_TIME = NOTE_TRAVEL / NOTE_SPEED / 60 * 1000; // ms at 60fps
+
+// ─── NOTES ────────────────────────────────────────────────
+function spawnNote(laneIndex, noteTime) {
+  const geo = new THREE.BoxGeometry(1.6, 0.22, 0.9);
+  const color = LANE_COLORS[laneIndex];
+  const mat = new THREE.MeshStandardMaterial({
+    color,
+    emissive: color,
+    emissiveIntensity: 0.6,
+    roughness: 0.3,
+    metalness: 0.8,
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(LANE_X[laneIndex], 0, NOTE_SPAWN_Z);
+  mesh.castShadow = true;
+  scene.add(mesh);
+  activeNotes.push({ mesh, mat, lane: laneIndex, noteTime, hit: false });
+}
+
+function updateNotes(currentTime) {
+  for (let i = activeNotes.length - 1; i >= 0; i--) {
+    const n = activeNotes[i];
+    // Position based on timing
+    const elapsed = currentTime - (n.noteTime - NOTE_TRAVEL_TIME);
+    const progress = elapsed / (NOTE_TRAVEL_TIME);
+    const z = NOTE_SPAWN_Z + (HIT_Z - NOTE_SPAWN_Z) * progress;
+    n.mesh.position.z = z;
+
+    // Pulse emissive based on proximity
+    const dist = Math.abs(z - (HIT_Z - 0.5));
+    const proximity = Math.max(0, 1 - dist / 6);
+    n.mat.emissiveIntensity = 0.4 + proximity * 1.2;
+    n.mesh.scale.y = 1 + proximity * 0.4;
+
+    // Miss
+    if (z > MISS_Z && !n.hit) {
+      scene.remove(n.mesh);
+      activeNotes.splice(i, 1);
+      combo = 0;
+      missCount++;
+      updateHUD();
+      showFeedback('MISS', '#ff3333');
+      playMissSound();
+    }
+  }
+}
+
+// ─── HIT DETECTION ────────────────────────────────────────
+function checkHit(lane) {
+  const HIT_WINDOW = 0.9; // z distance tolerance
+  let best = null;
+  let bestDist = Infinity;
+
+  for (const n of activeNotes) {
+    if (n.lane === lane && !n.hit) {
+      const dist = Math.abs(n.mesh.position.z - (HIT_Z - 0.5));
+      if (dist < HIT_WINDOW && dist < bestDist) {
+        best = n;
+        bestDist = dist;
+      }
+    }
+  }
+
+  if (best) {
+    best.hit = true;
+    scene.remove(best.mesh);
+    activeNotes.splice(activeNotes.indexOf(best), 1);
+
+    combo++;
+    if (combo > maxCombo) maxCombo = combo;
+    hitCount++;
+
+    let mult = combo >= 16 ? 4 : combo >= 8 ? 3 : combo >= 4 ? 2 : 1;
+    score += 100 * mult;
+
+    updateHUD();
+    spawnParticles(LANE_X[lane], LANE_COLORS[lane]);
+    spawnRing(LANE_X[lane], LANE_COLORS[lane]);
+    playHitSound(lane);
+    flashPad(lane);
+    flashLaneLight(lane);
+
+    const label = bestDist < 0.25 ? 'PERFECT' : bestDist < 0.55 ? 'GREAT' : 'GOOD';
+    const col = bestDist < 0.25 ? '#ffe600' : bestDist < 0.55 ? '#00f5ff' : '#00ff88';
+    showFeedback(label, col);
+  } else {
+    // Early/wrong press — small penalty
+    combo = 0;
+    updateHUD();
+  }
+}
+
+// ─── VISUAL FLASH ─────────────────────────────────────────
+function flashPad(lane) {
+  pads[lane].flashTimer = 12;
+  pads[lane].mat.opacity = 0.9;
+}
+
+function flashLaneLight(lane) {
+  laneLights[lane].intensity = 6;
+}
+
+function updatePads() {
+  pads.forEach((p, i) => {
+    if (p.flashTimer > 0) {
+      p.flashTimer--;
+      p.mat.opacity = 0.12 + (p.flashTimer / 12) * 0.78;
+      laneLights[i].intensity *= 0.82;
+    } else {
+      p.mat.opacity = 0.12;
+      laneLights[i].intensity = Math.max(0, laneLights[i].intensity - 0.05);
+    }
+  });
+}
+
+// ─── HIT FEEDBACK TEXT ────────────────────────────────────
+let feedbackTimeout = null;
+
+function showFeedback(text, color) {
+  const el = document.getElementById('hit-feedback');
+  el.textContent = text;
+  el.style.color = color;
+  el.style.textShadow = `0 0 20px ${color}`;
+  el.style.animation = 'none';
+  el.offsetHeight; // reflow
+  el.style.animation = 'hitPop 0.45s forwards';
+  if (feedbackTimeout) clearTimeout(feedbackTimeout);
+  feedbackTimeout = setTimeout(() => { el.style.opacity = '0'; }, 500);
+}
+
+// ─── HUD ──────────────────────────────────────────────────
+function updateHUD() {
+  document.getElementById('score-val').textContent = score.toLocaleString();
+  document.getElementById('combo-val').textContent = combo > 0 ? combo + 'x' : '0x';
+}
+
+// ─── KEY INPUT ────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (!started || ended) return;
+  const lane = KEYS.indexOf(e.key.toLowerCase());
+  if (lane === -1) return;
+
+  const keyEl = document.getElementById('key' + lane);
+  keyEl.classList.add('active');
+  keyEl.style.borderColor = LANE_COLORS_HEX[lane];
+  keyEl.style.boxShadow = `0 0 18px ${LANE_COLORS_HEX[lane]}`;
+
+  checkHit(lane);
+});
+
+document.addEventListener('keyup', e => {
+  const lane = KEYS.indexOf(e.key.toLowerCase());
+  if (lane === -1) return;
+  const keyEl = document.getElementById('key' + lane);
+  keyEl.classList.remove('active');
+  keyEl.style.borderColor = '';
+  keyEl.style.boxShadow = '';
+});
+
+// ─── START / END ──────────────────────────────────────────
+function startGame() {
+  initAudio();
+  score = 0; combo = 0; maxCombo = 0; hitCount = 0; missCount = 0;
+  started = true; ended = false;
+  spawned.fill(false);
+  activeNotes.forEach(n => scene.remove(n.mesh));
+  activeNotes.length = 0;
+  particles.forEach(p => scene.remove(p.mesh));
+  particles.length = 0;
+  rings.forEach(r => scene.remove(r.mesh));
+  rings.length = 0;
+  updateHUD();
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('end-overlay').style.display = 'none';
+  startTime = performance.now();
+}
+
+function endGame() {
+  ended = true;
+  const pct = hitCount / totalNotes;
+  const grade = pct >= 0.98 ? 'S' : pct >= 0.90 ? 'A' : pct >= 0.75 ? 'B' : pct >= 0.55 ? 'C' : 'D';
+  const gradeColors = { S: '#ffe600', A: '#00f5ff', B: '#00ff88', C: '#ff8800', D: '#ff3333' };
+
+  document.getElementById('final-score').textContent = score.toLocaleString();
+  document.getElementById('final-combo').textContent = 'Max Combo: ' + maxCombo;
+  document.getElementById('grade').textContent = grade;
+  document.getElementById('grade').style.color = gradeColors[grade];
+  document.getElementById('grade').style.textShadow = `0 0 40px ${gradeColors[grade]}`;
+
+  const el = document.getElementById('end-overlay');
+  el.style.display = 'flex';
+}
+
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('retry-btn').addEventListener('click', startGame);
+
+// ─── ANIMATE GRID ─────────────────────────────────────────
+let gridOffset = 0;
+function updateGrid() {
+  gridOffset += 0.04;
+  gridLines.forEach((line, i) => {
+    const baseZ = -48 + (i * 4);
+    line.position.z = ((baseZ + gridOffset * 3) % 60) - 28;
+  });
+}
+
+// ─── MAIN LOOP ────────────────────────────────────────────
+let frameId = null;
+const clock = new THREE.Clock();
+
+function animate() {
+  frameId = requestAnimationFrame(animate);
+  const delta = clock.getDelta();
+
+  updateGrid();
+  updateParticles();
+  updateRings();
+  updatePads();
+
+  // Subtle camera sway
+  camera.position.x = Math.sin(clock.elapsedTime * 0.3) * 0.15;
+
+  // Back light pulse
+  backLight.intensity = 2.5 + Math.sin(clock.elapsedTime * 1.2) * 0.8;
+
+  if (started && !ended) {
+    const currentTime = performance.now() - startTime;
+
+    // Spawn notes
+    CHART.forEach((note, i) => {
+      if (!spawned[i] && currentTime >= note.time - NOTE_TRAVEL_TIME) {
+        spawnNote(note.lane, note.time);
+        spawned[i] = true;
+      }
+    });
+
+    updateNotes(currentTime);
+
+    // Check game end: all notes spawned and active notes cleared
+    const allSpawned = spawned.every(Boolean);
+    const lastNote = CHART[CHART.length - 1];
+    if (allSpawned && activeNotes.length === 0 && currentTime > lastNote.time + 2000) {
+      endGame();
+    }
+  }
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+</script>
 </body>
 </html>
