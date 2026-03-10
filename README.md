@@ -1,4 +1,4 @@
-# 🎵 Boohbah Beats
+# 🎵 Dance Dance Little Evlis Zingbah
 
 A 3D rhythm game built with Three.js and Electron.
 
