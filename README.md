@@ -4,6 +4,17 @@ Boohbah Beats is a browser-based rhythm game inspired by arcade rhythm titles an
 
 The game runs entirely in the browser using HTML, CSS, and JavaScript with dynamic visuals, animated characters, and multiple UI systems.
 
+## Running the Game
+
+1. Click the green code button near the top of the page
+2. Make sure you are under the local tab
+3. Click "Download ZIP"
+4. Unzip the file from your computer
+5. Run the "index.html" file within your web brower (or double click the file on your desktop)
+6. Then have fun!
+
+No server setup or installation is required.
+
 ## Features
 
 Rhythm Gameplay
@@ -92,17 +103,6 @@ boohbah-beats/
 ├── index.html      # Main game file
 ├── assets/         # Images, sounds, and effects (optional if added)
 └── README.md       # Project documentation
-
-## Running the Game
-
-1. Click the green code button near the top of the page
-2. Make sure you are under the local tab
-3. Click "Download ZIP"
-4. Unzip the file from your computer
-5. Run the "index.html" file within your web brower (or double click the file on your desktop)
-6. Then have fun!
-
-No server setup or installation is required.
 
 ## Notes
 
