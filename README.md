@@ -1,73 +1,121 @@
-# 🎵 Dance Dance Little Evlis Zingbah
+# Dance Dance Little Elvis Zingbah
 
-A 3D rhythm game built with Three.js and Electron.
+Boohbah Beats is a browser-based rhythm game inspired by arcade rhythm titles and the whimsical world of Boohbah. Players hit notes in time with the music to build combos, increase their score, and unlock new rhythm dimensions.
 
-## How to Play
+The game runs entirely in the browser using HTML, CSS, and JavaScript with dynamic visuals, animated characters, and multiple UI systems.
 
-- Press **A S D F** to hit notes as they cross the hit line
-- Build combos for higher scores
-- Timing grades: **PERFECT** / **GREAT** / **GOOD** / **MISS**
+## Features
+
+Rhythm Gameplay
+- Hit notes in time with the music using keyboard controls.
+- Build combos and increase your score.
+- Visual feedback for hits, combos, and accuracy.
+
+Multiple Rhythm Worlds
+
+1. The Infinite Drum Jungle  
+   A percussion-filled jungle dimension.
+
+2. The Neon Beat Void (locked initially)  
+   A neon geometric world with higher difficulty.
+
+3. The Consecutive Dimension (locked initially)  
+   A complex reality where notes echo across timelines.
+
+Player Profiles
+- Enter a username before playing.
+- Game stats are tracked per player.
+- View profile statistics including:
+  - Total score
+  - Combos
+  - Song performance
+
+Settings System
+- Adjustable input settings
+- Lane toggling
+- Audio offset calibration
+- Customizable key bindings
+
+Story Mode
+The game includes a story introduction explaining the rhythm dimension and the player's role in restoring the beat.
+
+Visual Effects
+- Floating Boohbah creatures
+- Starfield background animations
+- Neon rhythm UI
+- Animated overlays and transitions
+
+Secret Mode
+A hidden Haboob Horror Mode can be triggered in the game which:
+- Alters the visual style
+- Adds glitch effects
+- Unlocks a secret map called The Void
 
 ## Controls
 
-| Key | Lane |
-|-----|------|
-| A | Lane 1 (Cyan) |
-| S | Lane 2 (Magenta) |
-| D | Lane 3 (Yellow) |
-| F | Lane 4 (Green) |
+Default keyboard layout uses rhythm lanes mapped to keys. These controls can be changed in the settings menu.
 
-## Scoring
+Gameplay actions include:
+- Hit notes on time to gain score
+- Maintain combos for bonus points
+- Pause the game
+- Open settings during gameplay
 
-- Base: 100 pts per hit
-- Combo x2 at 4+ combo
-- Combo x3 at 8+ combo
-- Combo x4 at 16+ combo
+## Gameplay Systems
 
-## Grades
+The game tracks several performance metrics:
 
-| Grade | Hit % |
-|-------|-------|
-| S | 98%+ |
-| A | 90%+ |
-| B | 75%+ |
-| C | 55%+ |
-| D | Below 55% |
+- Score
+- Combo multiplier
+- Accuracy
+- Song completion stats
 
----
+These metrics determine the final grade shown at the end of a song.
+
+## Technologies Used
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Canvas rendering
+- YouTube IFrame API
+
+Fonts used:
+- Fredoka One
+- Nunito
+- Press Start 2P
+
+## Project Structure
+
+boohbah-beats/
+│
+├── index.html      # Main game file
+├── assets/         # Images, sounds, and effects (optional if added)
+└── README.md       # Project documentation
 
 ## Running the Game
 
-### Option A — Play instantly (no install)
-Just open `index.html` in **Google Chrome** or **Firefox**.
+1. Download or clone the project.
+2. Open index.html in a web browser.
 
-> ⚠️ You need an internet connection the first time (loads Three.js from CDN).
-> After that, it works offline if your browser cached it.
+No server setup or installation is required.
 
-### Option B — Desktop App with Electron
+## Notes
 
-**Requirements:** [Node.js](https://nodejs.org) (v18+)
+- The game is designed for desktop browsers.
+- Keyboard input is required.
+- Some content unlocks only after completing earlier songs.
 
-```bash
-# 1. Install dependencies
-npm install
+## Future Improvements
 
-# 2. Launch the game
-npm start
-```
+Potential expansions include:
 
-### Option C — Build a standalone .exe / .app
+- More rhythm dimensions
+- Online leaderboards
+- More Boohbah characters
+- Additional songs
+- Mobile support
 
-```bash
-# Install electron-builder
-npm install --save-dev electron-builder
+## Credits
 
-# Build for your platform
-npx electron-builder build --win     # Windows .exe
-npx electron-builder build --mac     # macOS .app
-npx electron-builder build --linux   # Linux AppImage
-```
-
----
-
-Made by Khani Lyan & Alex Kurcan
+Created as a custom browser rhythm game project inspired by arcade rhythm mechanics and Boohbah-themed visuals.lex Kurcan
