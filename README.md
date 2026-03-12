@@ -95,8 +95,12 @@ boohbah-beats/
 
 ## Running the Game
 
-1. Download or clone the project.
-2. Open index.html in a web browser.
+1. Click the green code button near the top of the page
+2. Make sure you are under the local tab
+3. Click "Download ZIP"
+4. Unzip the file from your computer
+5. Run the "index.html" file within your web brower (or double click the file on your desktop)
+6. Then have fun!
 
 No server setup or installation is required.
 
