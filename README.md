@@ -25,13 +25,13 @@ Rhythm Gameplay
 Multiple Rhythm Worlds
 
 1. The Infinite Drum Jungle  
-   A percussion-filled jungle dimension.
+   A percussion-filled jungle dimension. (works!)
 
 2. The Neon Beat Void (locked initially)  
-   A neon geometric world with higher difficulty.
+   A neon geometric world with higher difficulty. (trying to get it to work)
 
 3. The Consecutive Dimension (locked initially)  
-   A complex reality where notes echo across timelines.
+   A complex reality where notes echo across timelines. (trying to get it to work)
 
 Player Profiles
 - Enter a username before playing.
