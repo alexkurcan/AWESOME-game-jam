@@ -1,5 +1,5 @@
 # Dance Dance Little Elvis Zingbah | BOOBAH BEATS
-
+#BIT UPDATE IN THE MIST OF CODING OUR GAME THE REST OF THE LEVELS BROKE AND COULD NOT BE FIXED IN TIME to play a level enter you username as "Haboob" which will pop up with the secret hidden beatmap that you can play.
 Boohbah Beats is a browser-based rhythm game inspired by arcade rhythm titles and the whimsical world of Boohbah. Players hit notes in time with the music to build combos, increase their score, and unlock new rhythm dimensions.
 
 The game runs entirely in the browser using HTML, CSS, and JavaScript with dynamic visuals, animated characters, and multiple UI systems.
