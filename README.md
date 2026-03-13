@@ -1,4 +1,4 @@
-# Dance Dance Little Elvis Zingbah
+# Dance Dance Little Elvis Zingbah | BOOBAH BEATS
 
 Boohbah Beats is a browser-based rhythm game inspired by arcade rhythm titles and the whimsical world of Boohbah. Players hit notes in time with the music to build combos, increase their score, and unlock new rhythm dimensions.
 
